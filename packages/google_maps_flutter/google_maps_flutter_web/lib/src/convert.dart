@@ -423,7 +423,8 @@ gmaps.PolylineOptions _polylineOptionsFromPolyline(
 }
 
 // Translates a [CameraUpdate] into operations on a [gmaps.GMap].
-void _applyCameraUpdate(gmaps.GMap map, CameraUpdate update) {
+void _applyCameraUpdate(gmaps.GMap map, CameraUpdate update,
+    {required bool animate}) {
   // Casts [value] to a JSON dictionary (string -> nullable object). [value]
   // must be a non-null JSON dictionary.
   Map<String, Object?> asJsonObject(dynamic value) {
@@ -440,12 +441,23 @@ void _applyCameraUpdate(gmaps.GMap map, CameraUpdate update) {
     case 'newCameraPosition':
       final Map<String, Object?> position = asJsonObject(json[1]);
       final List<Object?> latLng = asJsonList(position['target']);
-      map.heading = position['bearing'] as num?;
-      map.zoom = position['zoom'] as num?;
-      map.panTo(
-        gmaps.LatLng(latLng[0] as num?, latLng[1] as num?),
-      );
-      map.tilt = position['tilt'] as num?;
+      if (animate) {
+        map.heading = position['bearing'] as num?;
+        map.zoom = position['zoom'] as num?;
+        map.panTo(
+          gmaps.LatLng(latLng[0] as num?, latLng[1] as num?),
+        );
+        map.tilt = position['tilt'] as num?;
+      } else {
+        map.moveCamera(gmaps.CameraOptions()
+          ..heading = position['bearing'] as num?
+          ..zoom = position['zoom'] as num?
+          ..center = gmaps.LatLng(
+            latLng[0] as num?,
+            latLng[1] as num?,
+          )
+          ..tilt = position['tilt'] as num?);
+      }
       break;
     case 'newLatLng':
       final List<Object?> latLng = asJsonList(json[1]);
