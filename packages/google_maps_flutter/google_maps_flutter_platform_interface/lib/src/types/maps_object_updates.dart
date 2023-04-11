@@ -51,7 +51,7 @@ class MapsObjectUpdates<T extends MapsObject<T>> {
   MapsObjectUpdates.from(
     Set<T> previous,
     Set<T> current, {
-    required this.objectName,
+    this.objectName,
   }) {
     final Map<MapsObjectId<T>, T> previousObjects = keyByMapsObjectId(previous);
     final Map<MapsObjectId<T>, T> currentObjects = keyByMapsObjectId(current);
@@ -86,7 +86,7 @@ class MapsObjectUpdates<T extends MapsObject<T>> {
   }
 
   /// The name of the objects being updated, for use in serialization.
-  final String objectName;
+  final String? objectName;
 
   /// Set of objects to be added in this update.
   Set<T> get objectsToAdd {
@@ -119,11 +119,11 @@ class MapsObjectUpdates<T extends MapsObject<T>> {
       }
     }
 
-    addIfNonNull('${objectName}sToAdd', serializeMapsObjectSet(_objectsToAdd));
+    addIfNonNull('${objectName!}sToAdd', serializeMapsObjectSet(_objectsToAdd));
     addIfNonNull(
-        '${objectName}sToChange', serializeMapsObjectSet(_objectsToChange));
+        '${objectName!}sToChange', serializeMapsObjectSet(_objectsToChange));
     addIfNonNull(
-        '${objectName}IdsToRemove',
+        '${objectName!}IdsToRemove',
         _objectIdsToRemove
             .map<String>((MapsObjectId<T> m) => m.value)
             .toList());

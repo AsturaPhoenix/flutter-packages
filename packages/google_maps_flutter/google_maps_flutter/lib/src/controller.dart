@@ -123,10 +123,10 @@ class GoogleMapController {
   /// platform side.
   ///
   /// The returned [Future] completes after listeners have been notified.
-  Future<void> _updatePolylines(PolylineUpdates polylineUpdates) {
-    assert(polylineUpdates != null);
+  Future<void> _updatePolylines(
+      PolylineUpdates updates, Map<PolylineId, Polyline> oldPolylines) {
     return GoogleMapsFlutterPlatform.instance
-        .updatePolylines(polylineUpdates, mapId: mapId);
+        .updatePolylines(updates, oldPolylines, mapId: mapId);
   }
 
   /// Updates circle configuration.

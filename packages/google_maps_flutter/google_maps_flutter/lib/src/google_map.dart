@@ -348,7 +348,9 @@ class _GoogleMapState extends State<GoogleMap> {
     _updateOptions();
     _updateMarkers();
     _updatePolygons();
-    _updatePolylines();
+    if (widget.polylines != oldWidget.polylines) {
+      _updatePolylines(widget.polylines, oldWidget.polylines);
+    }
     _updateCircles();
     _updateTileOverlays();
   }
@@ -381,12 +383,15 @@ class _GoogleMapState extends State<GoogleMap> {
     _polygons = keyByPolygonId(widget.polygons);
   }
 
-  Future<void> _updatePolylines() async {
+  Future<void> _updatePolylines(
+      Set<Polyline> polylines, Set<Polyline> oldPolylines) async {
     final GoogleMapController controller = await _controller.future;
     // ignore: unawaited_futures
     controller._updatePolylines(
-        PolylineUpdates.from(_polylines.values.toSet(), widget.polylines));
-    _polylines = keyByPolylineId(widget.polylines);
+      PolylineUpdates.from(oldPolylines, polylines),
+      _polylines,
+    );
+    _polylines = keyByPolylineId(polylines);
   }
 
   Future<void> _updateCircles() async {

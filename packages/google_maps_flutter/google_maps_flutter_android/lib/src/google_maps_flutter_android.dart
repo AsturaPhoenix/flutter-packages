@@ -342,13 +342,24 @@ class GoogleMapsFlutterAndroid extends GoogleMapsFlutterPlatform {
 
   @override
   Future<void> updatePolylines(
-    PolylineUpdates polylineUpdates, {
+    PolylineUpdates updates,
+    Map<PolylineId, Polyline> oldPolylines, {
     required int mapId,
   }) {
-    assert(polylineUpdates != null);
     return _channel(mapId).invokeMethod<void>(
       'polylines#update',
-      polylineUpdates.toJson(),
+      {
+        'polylinesToAdd': [
+          for (final toAdd in updates.objectsToAdd) toAdd.toJson(),
+        ],
+        'polylinesToChange': [
+          for (final toChange in updates.objectsToChange)
+            toChange.toDiffJson(oldPolylines[toChange.polylineId]!),
+        ],
+        'polylineIdsToRemove': [
+          for (final idToRemove in updates.objectIdsToRemove) idToRemove.value,
+        ]
+      },
     );
   }
 

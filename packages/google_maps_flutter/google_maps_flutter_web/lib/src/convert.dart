@@ -407,7 +407,7 @@ gmaps.PolylineOptions _polylineOptionsFromPolyline(
   final List<gmaps.LatLng> paths =
       polyline.points.map(_latLngToGmLatLng).toList();
 
-  return gmaps.PolylineOptions()
+  final options = gmaps.PolylineOptions()
     ..path = paths
     ..strokeWeight = polyline.width
     ..strokeColor = _getCssColor(polyline.color)
@@ -420,6 +420,15 @@ gmaps.PolylineOptions _polylineOptionsFromPolyline(
 //  this.patterns = const <PatternItem>[],
 //  this.startCap = Cap.buttCap,
 //  this.width = 10,
+  final endCap = polyline.endCap.toJson() as List<Object>;
+  if (endCap[0] == 'customCap') {
+    options.icons = [
+      gmaps.IconSequence()
+        ..icon =
+            (gmaps.GSymbol()..path = gmaps.SymbolPath.FORWARD_CLOSED_ARROW),
+    ];
+  }
+  return options;
 }
 
 // Translates a [CameraUpdate] into operations on a [gmaps.GMap].

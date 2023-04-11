@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart'
     show immutable, listEquals, VoidCallback;
 import 'package:flutter/material.dart' show Color, Colors;
@@ -163,28 +164,71 @@ class Polyline implements MapsObject<Polyline> {
   Object toJson() {
     final Map<String, Object> json = <String, Object>{};
 
-    void addIfPresent(String fieldName, Object? value) {
+    void addIfChanged(String fieldName, Object? value) {
       if (value != null) {
         json[fieldName] = value;
       }
     }
 
-    addIfPresent('polylineId', polylineId.value);
-    addIfPresent('consumeTapEvents', consumeTapEvents);
-    addIfPresent('color', color.value);
-    addIfPresent('endCap', endCap.toJson());
-    addIfPresent('geodesic', geodesic);
-    addIfPresent('jointType', jointType.value);
-    addIfPresent('startCap', startCap.toJson());
-    addIfPresent('visible', visible);
-    addIfPresent('width', width);
-    addIfPresent('zIndex', zIndex);
+    addIfChanged('polylineId', polylineId.value);
+    addIfChanged('consumeTapEvents', consumeTapEvents);
+    addIfChanged('color', color.value);
+    addIfChanged('endCap', endCap.toJson());
+    addIfChanged('geodesic', geodesic);
+    addIfChanged('jointType', jointType.value);
+    addIfChanged('startCap', startCap.toJson());
+    addIfChanged('visible', visible);
+    addIfChanged('width', width);
+    addIfChanged('zIndex', zIndex);
 
     if (points != null) {
       json['points'] = _pointsToJson();
     }
 
     if (patterns != null) {
+      json['pattern'] = _patternToJson();
+    }
+
+    return json;
+  }
+
+  Object toDiffJson(Polyline old) {
+    final Map<String, Object> json = <String, Object>{
+      'polylineId': polylineId.value,
+    };
+
+    void addIfChanged<T extends Object>(
+        String fieldName, T Function(Polyline) getter,
+        [Object Function(T)? toJson]) {
+      final T value = getter(this);
+      if (value != getter(old)) {
+        json[fieldName] = toJson == null ? value : toJson(value);
+      }
+    }
+
+    addIfChanged('consumeTapEvents', (p) => consumeTapEvents);
+    addIfChanged('color', (p) => p.color, (color) => color.value);
+    addIfChanged('endCap', (p) => p.endCap, (endCap) => endCap.toJson());
+    addIfChanged('geodesic', (p) => p.geodesic);
+    addIfChanged(
+      'jointType',
+      (p) => p.jointType,
+      (jointType) => jointType.value,
+    );
+    addIfChanged(
+      'startCap',
+      (p) => p.startCap,
+      (startCap) => startCap.toJson(),
+    );
+    addIfChanged('visible', (p) => p.visible);
+    addIfChanged('width', (p) => p.width);
+    addIfChanged('zIndex', (p) => p.zIndex);
+
+    if (!const ListEquality().equals(points, old.points)) {
+      json['points'] = _pointsToJson();
+    }
+
+    if (!const ListEquality().equals(patterns, old.patterns)) {
       json['pattern'] = _patternToJson();
     }
 

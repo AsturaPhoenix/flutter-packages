@@ -354,13 +354,18 @@ final class GoogleMapController
         }
       case "polylines#update":
         {
+          long t = System.currentTimeMillis();
           invalidateMapIfNeeded();
+          System.out.println("invalidate: " + (System.currentTimeMillis() - t) + " ms");
+
+          t = System.currentTimeMillis();
           List<Object> polylinesToAdd = call.argument("polylinesToAdd");
           polylinesController.addPolylines(polylinesToAdd);
           List<Object> polylinesToChange = call.argument("polylinesToChange");
           polylinesController.changePolylines(polylinesToChange);
           List<Object> polylineIdsToRemove = call.argument("polylineIdsToRemove");
           polylinesController.removePolylines(polylineIdsToRemove);
+          System.out.println("CRUD: " + (System.currentTimeMillis() - t) + " ms");
           result.success(null);
           break;
         }

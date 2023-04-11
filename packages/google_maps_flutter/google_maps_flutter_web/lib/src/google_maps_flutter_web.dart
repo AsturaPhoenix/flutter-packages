@@ -75,7 +75,8 @@ class GoogleMapsPlugin extends GoogleMapsFlutterPlatform {
   /// Applies the passed in `polylineUpdates` to the `mapId`.
   @override
   Future<void> updatePolylines(
-    PolylineUpdates polylineUpdates, {
+    PolylineUpdates polylineUpdates,
+    Map<PolylineId, Polyline> oldPolylines, {
     required int mapId,
   }) async {
     _map(mapId).updatePolylines(polylineUpdates);

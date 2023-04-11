@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart' show immutable;
 
 import 'types.dart';
@@ -52,4 +53,18 @@ class Cap {
 
   /// Converts this object to something serializable in JSON.
   Object toJson() => _json;
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+    return other is Cap &&
+        const DeepCollectionEquality().equals(_json, other._json);
+  }
+
+  @override
+  int get hashCode => const DeepCollectionEquality().hash(_json);
 }

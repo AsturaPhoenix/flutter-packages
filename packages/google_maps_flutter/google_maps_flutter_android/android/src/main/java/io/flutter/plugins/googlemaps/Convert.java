@@ -36,9 +36,34 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /** Conversions between JSON-like values and GoogleMaps data types. */
 class Convert {
+  private static final class AssetImageKey {
+    public final String asset;
+    public final double scale;
+
+    public AssetImageKey(String asset, double scale) {
+      this.asset = asset;
+      this.scale = scale;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      AssetImageKey that = (AssetImageKey) o;
+      return Double.compare(that.scale, scale) == 0 && asset.equals(that.asset);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(asset, scale);
+    }
+  }
+
+  private static Map<AssetImageKey, BitmapDescriptor> assetCache = new HashMap<>();
 
   // TODO(hamdikahloun): FlutterMain has been deprecated and should be replaced with FlutterLoader
   //  when it's available in Stable channel: https://github.com/flutter/flutter/issues/70923.
@@ -68,18 +93,27 @@ class Convert {
             return BitmapDescriptorFactory.fromAsset(
               io.flutter.view.FlutterMain.getLookupKeyForAsset(toString(data.get(1))));
           } else {
-            // Another option could be to modify the Android API side to support scaling in BitmapDescriptor.loadBitmap.
-            final String fileName = io.flutter.view.FlutterMain.getLookupKeyForAsset(toString(data.get(1)));
-            try (final InputStream asset = context.getAssets().open(fileName)) {
-              final BitmapFactory.Options options = new BitmapFactory.Options();
-              options.inScaled = true;
-              options.inDensity = DisplayMetrics.DENSITY_DEFAULT;
-              options.inTargetDensity = (int) (scale * DisplayMetrics.DENSITY_DEFAULT);
-              return BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeStream(asset, null, options));
-            } catch (IOException e) {
-              // This may just be punting the error down the line though. It may be better to return
-              // null (which is what loadBitmap does) to fail fast.
-              return BitmapDescriptorFactory.fromAsset(fileName);
+            final AssetImageKey key = new AssetImageKey(toString(data.get(1)), scale);
+            BitmapDescriptor result = assetCache.get(key);
+            if (result != null) {
+              return result;
+            } else {
+              // Another option could be to modify the Android API side to support scaling in BitmapDescriptor.loadBitmap.
+              final String fileName = io.flutter.view.FlutterMain.getLookupKeyForAsset(key.asset);
+              try (final InputStream asset = context.getAssets().open(fileName)) {
+                final BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inScaled = true;
+                options.inDensity = DisplayMetrics.DENSITY_DEFAULT;
+                options.inTargetDensity = (int) (scale * DisplayMetrics.DENSITY_DEFAULT);
+                result = BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeStream(asset, null, options));
+              } catch (IOException e) {
+                // This may just be punting the error down the line though. It may be better to return
+                // null (which is what loadBitmap does) to fail fast.
+                result = BitmapDescriptorFactory.fromAsset(fileName);
+              }
+              assetCache.put(key, result);
+              System.out.println("Asset cache size: " + assetCache.size());
+              return result;
             }
           }
         } else {
@@ -667,6 +701,8 @@ class Convert {
     return pattern;
   }
 
+  private static Map<List<?>, Cap> capCache = new HashMap<>();
+
   private static Cap toCap(Object o, Context context) {
     final List<?> data = toList(o);
     switch (toString(data.get(0))) {
@@ -677,11 +713,18 @@ class Convert {
       case "squareCap":
         return new SquareCap();
       case "customCap":
-        if (data.size() == 2) {
-          return new CustomCap(toBitmapDescriptor(data.get(1), context));
-        } else {
-          return new CustomCap(toBitmapDescriptor(data.get(1), context), toFloat(data.get(2)));
+        final List<?> key = data.subList(1, data.size());
+        Cap cap = capCache.get(key);
+        if (cap == null) {
+          if (data.size() == 2) {
+            cap = new CustomCap(toBitmapDescriptor(data.get(1), context));
+          } else {
+            cap = new CustomCap(toBitmapDescriptor(data.get(1), context), toFloat(data.get(2)));
+          }
+          capCache.put(key, cap);
+          System.out.println("Cap cache size: " + capCache.size());
         }
+        return cap;
       default:
         throw new IllegalArgumentException("Cannot interpret " + o + " as Cap");
     }

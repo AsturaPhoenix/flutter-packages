@@ -113,7 +113,8 @@ abstract class GoogleMapsFlutterPlatform extends PlatformInterface {
   ///
   /// The returned [Future] completes after listeners have been notified.
   Future<void> updatePolylines(
-    PolylineUpdates polylineUpdates, {
+    PolylineUpdates polylineUpdates,
+    Map<PolylineId, Polyline> oldPolylines, {
     required int mapId,
   }) {
     throw UnimplementedError('updatePolylines() has not been implemented.');

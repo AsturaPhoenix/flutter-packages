@@ -2,11 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:flutter/foundation.dart'
-    show immutable, objectRuntimeType, visibleForTesting;
-
 /// A pair of latitude and longitude coordinates, stored as degrees.
-@immutable
 class LatLng {
   /// Creates a geographical location specified in degrees [latitude] and
   /// [longitude].
@@ -47,8 +43,7 @@ class LatLng {
   }
 
   @override
-  String toString() =>
-      '${objectRuntimeType(this, 'LatLng')}($latitude, $longitude)';
+  String toString() => 'LatLng($latitude, $longitude)';
 
   @override
   bool operator ==(Object other) {
@@ -69,7 +64,6 @@ class LatLng {
 ///   if `southwest.longitude` ≤ `northeast.longitude`,
 /// * lng ∈ [-180, `northeast.longitude`] ∪ [`southwest.longitude`, 180],
 ///   if `northeast.longitude` < `southwest.longitude`
-@immutable
 class LatLngBounds {
   /// Creates geographical bounding box with the specified corners.
   ///
@@ -110,7 +104,6 @@ class LatLngBounds {
   }
 
   /// Converts a list to [LatLngBounds].
-  @visibleForTesting
   static LatLngBounds? fromList(Object? json) {
     if (json == null) {
       return null;
@@ -125,7 +118,7 @@ class LatLngBounds {
 
   @override
   String toString() {
-    return '${objectRuntimeType(this, 'LatLngBounds')}($southwest, $northeast)';
+    return 'LatLngBounds($southwest, $northeast)';
   }
 
   @override

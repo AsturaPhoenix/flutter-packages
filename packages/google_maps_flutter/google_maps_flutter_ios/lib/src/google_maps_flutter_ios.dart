@@ -324,7 +324,8 @@ class GoogleMapsFlutterIOS extends GoogleMapsFlutterPlatform {
 
   @override
   Future<void> updatePolylines(
-    PolylineUpdates polylineUpdates, {
+    PolylineUpdates polylineUpdates,
+    Map<PolylineId, Polyline> oldPolylines, {
     required int mapId,
   }) {
     assert(polylineUpdates != null);
